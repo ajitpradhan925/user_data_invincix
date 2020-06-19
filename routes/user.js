@@ -70,16 +70,24 @@ router.route('/user')
 
 
     })
+   
+    /**
+     * Get All User
+     */
     .get(async (req, res, next) => {
-        await User.find((err, success) => {
-            if (err) next();
-            res.json({
-                success: true,
-                total: success.length,
-                user: success,
-
-            })
-        })
+        try {
+            await User.find({}, (err, success) => {
+                if (err) next();
+                res.json({
+                    success: true,
+                    total: success.length,
+                    user: success
+    
+                })
+            });
+        } catch (error) {
+           next(error);
+        }
     })
     /**
      * Update User
@@ -131,5 +139,28 @@ router.route('/user')
     
 
 
+
+
+    router.get('/user/:userId', async (req, res, next) => {
+        try {
+            let user = await User.findById(req.params.userId);
+    
+            if (!user) {
+              return next(
+                new Error(`User not found with id of ${req.params.id}`)
+              );
+            }
+    
+            user = await User.findById(req.params.userId);
+            
+            res.status(200).json({
+                success: true,
+                user: user
+            });
+        } catch (err) {
+            next(err.message)
+        }
+    
+    })
 
 module.exports = router;
