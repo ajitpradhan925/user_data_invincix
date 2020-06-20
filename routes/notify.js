@@ -11,63 +11,29 @@ router.get('/sms',async (req, res, next) => {
     const repliedUnicode = req.query.repliedUnicode;
 
 
-    if(flag == process.env.FLAG_1) {
+    var msg = '';
+    var mobileNo = process.env.MOBILE_NO;
+    if (flag === process.env.FLAG_1) {
+        msg = "'" + UniqueCode + "'" + ' has requested ' + flag + '.';
+    }
+    else if (flag === process.env.FLAG_2) {
+        msg = "'" + UniqueCode + "'" + ' has replied for ' + repliedUnicode + '.';
+    }
+    else if (flag === process.env.FLAG_3) {
+        msg = "'" + UniqueCode + "'" + ' has passed ' + repliedUnicode + '.';
+    }
 
-        if(saveNotifyToDB(UniqueCode, flag, repliedUnicode, null)) {
-            var msg = "'"+UniqueCode+"'" + ' has requested ' + flag +'.';
-            var mobileNo = process.env.MOBILE_NO;
-            sendSms(msg,mobileNo);
-
-            return res.json({
-                success: true,
-                msg: "Successfully notified"
-            })
-        } else {
-            return res.json({
-                success: false,
-                msg: "Some problem occured"
-            })
-        }
-
-    } else if(flag == process.env.FLAG_2) {
-        
-
-        if(saveNotifyToDB(UniqueCode, flag, repliedUnicode, null)) {
-            var msg = "'"+UniqueCode+"'" + ' has replied for ' + repliedUnicode +'.';
-            var mobileNo = process.env.MOBILE_NO;
-            sendSms(msg,mobileNo);
-
-            return res.json({
-                success: true,
-                msg: "Successfully notified"
-            })
-        } else {
-            return res.json({
-                success: false,
-                msg: "Some problem occured"
-            })
-        }
-
-
-    } else if(flag == process.env.FLAG_3) {
-
-        if(saveNotifyToDB(UniqueCode, flag, repliedUnicode, null)) {
-            var msg = "'"+UniqueCode+"'" + ' has passed ' + repliedUnicode +'.';
-            var mobileNo = process.env.MOBILE_NO;
-            sendSms(msg, mobileNo);
-
-            return res.json({
-                success: true,
-                msg: "Successfully notified"
-            })
-        } else {
-            return res.json({
-                success: false,
-                msg: "Some problem occured"
-            })
-        }
-
-
+    if (saveNotifyToDB(UniqueCode, flag, repliedUnicode, null)) {
+        sendSms(msg, mobileNo);
+        return res.json({
+            success: true,
+            msg: "Successfully notified"
+        });
+    } else {
+        return res.json({
+            success: false,
+            msg: "Some problem occured"
+        });
     }
 
 })
