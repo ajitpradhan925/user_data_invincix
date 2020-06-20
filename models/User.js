@@ -22,7 +22,11 @@ const UserSchema = mongoose.Schema({
         email: {
             type: String
         },
-        uniqueCode:String
+        uniqueCode:String,
+        registerAt: {
+            type: Date,
+            default: Date.now
+        }
 
 })
 

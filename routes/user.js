@@ -172,6 +172,9 @@ router.get('/user/:userId', async (req, res, next) => {
         next(err.message)
     }
 
-})
+});
+
+
+
 
 module.exports = router;

@@ -21,7 +21,11 @@ app.use(express.json({
 
 app.use(morgan('dev'));
 
+// User register api
 app.use('/api', require('./routes/user'));
+
+// User notify api
+app.use('/api/notify', require('./routes/notify'));
 
 
 const PORT = process.env.PORT || 5000;
