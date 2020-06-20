@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
-
+var dateFormat = require('dateformat');
 const {
     check,
     validationResult
@@ -40,10 +40,17 @@ router.route('/user')
                 email
             } = req.body;
 
+            const ts_hms = new Date(dob);
+
+            // console.log(ts_hms.getFullYear());
+            // console.log(ts_hms.getMonth()+ 1 );
+            // console.log(ts_hms.getDate());
+
             const unique_name = first_name.substring(0, 3);
-            const date = dob.substring(5, 7);
-            const month = dob.substring(8, 10);
-            const uniqueCode = unique_name + date + month;
+
+            // uniCode
+            const uniqueCode = unique_name + '' + ("0" + (ts_hms.getDate())).slice(-2) + '' +
+                 ("0" + (ts_hms.getMonth() + 1)).slice(-2);
 
 
             const user = new User();
@@ -70,7 +77,7 @@ router.route('/user')
 
 
     })
-   
+
     /**
      * Get All User
      */
@@ -82,51 +89,55 @@ router.route('/user')
                     success: true,
                     total: success.length,
                     user: success
-    
+
                 })
             });
         } catch (error) {
-           next(error);
+            next(error);
         }
     })
     /**
      * Update User
      */
-    .put( async (req, res, next) => {
+    .put(async (req, res, next) => {
         try {
-          let user = await User.findById(req.query.userId);
-      
-          if (!user) {
-            return next(`User data not available with id ${req.query.userId}`, 404);
-          }
-      
-          
-          user = await User.findByIdAndUpdate(req.query.userId, req.body, {
-              new: true,
-              runValidators: true
+            let user = await User.findById(req.query.userId);
+
+            if (!user) {
+                return next(`User data not available with id ${req.query.userId}`, 404);
+            }
+
+
+            user = await User.findByIdAndUpdate(req.query.userId, req.body, {
+                new: true,
+                runValidators: true
             });
-          
-            res.status(200).json({ success: true, message: "Successfully updated user.", data: user });
+
+            res.status(200).json({
+                success: true,
+                message: "Successfully updated user.",
+                data: user
+            });
         } catch (error) {
             next(error)
         }
-      
-      })
-      /**
-       * Delete User
-       */
-      .delete(async (req, res, next) => {
+
+    })
+    /**
+     * Delete User
+     */
+    .delete(async (req, res, next) => {
         try {
             let user = await User.findById(req.query.userId);
-    
+
             if (!user) {
-              return next(
-                new Error(`User data not available with id of ${req.params.id}`)
-              );
+                return next(
+                    new Error(`User data not available with id of ${req.params.id}`)
+                );
             }
-    
+
             user = await User.findByIdAndDelete(req.query.userId);
-            
+
             res.status(200).json({
                 success: true,
                 msg: 'Successfully deleted'
@@ -134,33 +145,33 @@ router.route('/user')
         } catch (err) {
             next(err.message)
         }
-    
+
     });
-    
 
 
 
 
-    router.get('/user/:userId', async (req, res, next) => {
-        try {
-            let user = await User.findById(req.params.userId);
-    
-            if (!user) {
-              return next(
+
+router.get('/user/:userId', async (req, res, next) => {
+    try {
+        let user = await User.findById(req.params.userId);
+
+        if (!user) {
+            return next(
                 new Error(`User not found with id of ${req.params.id}`)
-              );
-            }
-    
-            user = await User.findById(req.params.userId);
-            
-            res.status(200).json({
-                success: true,
-                user: user
-            });
-        } catch (err) {
-            next(err.message)
+            );
         }
-    
-    })
+
+        user = await User.findById(req.params.userId);
+
+        res.status(200).json({
+            success: true,
+            user: user
+        });
+    } catch (err) {
+        next(err.message)
+    }
+
+})
 
 module.exports = router;
