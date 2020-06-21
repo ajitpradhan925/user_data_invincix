@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
 const colors = require('colors');
-var QRCode = require('qrcode');
+const cors = require('cors');
 
 // Load env vars
 dotenv.config({ path: './config/config.env' });
@@ -23,6 +23,7 @@ app.use(express.json({
 
 
 app.use(morgan('dev'));
+app.use(cors());
 
 // User register api
 app.use('/api', require('./routes/user'));
