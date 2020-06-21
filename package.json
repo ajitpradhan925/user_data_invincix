@@ -10,7 +10,7 @@
   "license": "MIT",
   "devDependencies": {
     "colors": "^1.4.0",
-    "dotenv": "^8.2.0",
+
     "mongoose": "^5.9.2",
     "nodemon": "^2.0.2",
     "morgan": "^1.9.1"
@@ -22,7 +22,8 @@
     "mongoose": "^5.9.19",
     "msg91": "0.0.6",
     "qr-image": "^3.2.0",
-    "qrcode": "^1.4.4"
+    "qrcode": "^1.4.4",
+    "dotenv": "^8.2.0"
   },
   "engines": {
     "node": "10.x"
