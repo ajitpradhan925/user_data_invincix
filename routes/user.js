@@ -1,6 +1,11 @@
 const express = require('express');
 const User = require('../models/User');
 var dateFormat = require('dateformat');
+const notify = require('./notify');
+const msg91 = require('msg91')
+    (process.env.MSG91_AUTH_API, process.env.MSG91_SENDER_ID, process.env.MSG91_ROUTING_NO);
+
+
 const {
     check,
     validationResult
@@ -40,43 +45,75 @@ router.route('/user')
                 email
             } = req.body;
 
-            const ts_hms = new Date(dob);
 
-            // console.log(ts_hms.getFullYear());
-            // console.log(ts_hms.getMonth()+ 1 );
-            // console.log(ts_hms.getDate());
-
-            const unique_name = first_name.substring(0, 3);
-
-            // uniCode
-            const uniqueCode = unique_name + '' + ("0" + (ts_hms.getDate())).slice(-2) + '' +
-                 ("0" + (ts_hms.getMonth() + 1)).slice(-2);
+            User.findOne({mobile_number: mobile_number}, (err, user) => {
+                if(err) next(err);
 
 
-            const user = new User();
+                if(user) {
+                    res.json({
+                        success: false,
+                        msg: "User alredy exists",
+        
+                    });
+                } else {
 
-            user.first_name = first_name;
-            user.last_name = last_name;
-            user.dob = dob;
-            user.mobile_number = mobile_number;
-            user.email = email;
-            user.address = address;
-            user.uniqueCode = uniqueCode;
+                    const ts_hms = new Date(dob);
 
-            await user.save();
+                    // console.log(ts_hms.getFullYear());
+                    // console.log(ts_hms.getMonth()+ 1 );
+                    // console.log(ts_hms.getDate());
+        
+                    const unique_name = first_name.substring(0, 3);
+        
+                    // uniCode
+                    const uniqueCode = unique_name + '' + ("0" + (ts_hms.getDate())).slice(-2) + '' +
+                         ("0" + (ts_hms.getMonth() + 1)).slice(-2);
+        
+        
+                    const user = new User();
+        
+                    user.first_name = first_name;
+                    user.last_name = last_name;
+                    user.dob = dob;
+                    user.mobile_number = mobile_number;
+                    user.email = email;
+                    user.address = address;
+                    user.uniqueCode = uniqueCode;
+        
+                     user.save((err, success) => {
+                        if(err) next(err);
+        
+                        if(success) {
+        
+                            let msg = "Welcome "+ "'" +first_name + "'" +'\r\n' +  "Write your first letter and find " 
+                                +'\r\n'  + " your bond! " + '\r\n' + "Love" + '\r\n' + "Kabootar- Covalenting Bonds";
 
-            res.json({
-                success: true,
-                msg: "User added to db",
-                user: user,
+                            console.log(msg)
+                            sendSms(msg, mobile_number);
 
+                            
+                            res.json({
+                                success: true,
+                                msg: "User added to db",
+                                user: user,
+                
+                            });
+                        }
+                    });
+        
+         
+                }
             });
+
+
         } catch (error) {
             res.json(error.message);
         }
 
 
     })
+
 
     /**
      * Get All User
@@ -174,6 +211,21 @@ router.get('/user/:userId', async (req, res, next) => {
 
 });
 
+
+
+
+
+
+    /**
+     *   Message Function
+     */
+    function sendSms(msg, mobile_number) {
+
+        msg91.send(mobile_number, msg, function(err, response){
+            if(err) console.log(err);
+            if(response) console.log(response);
+        });
+    }
 
 
 
