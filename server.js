@@ -3,6 +3,8 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
 const colors = require('colors');
+var QRCode = require('qrcode');
+
 // Load env vars
 dotenv.config({ path: './config/config.env' });
 
@@ -19,6 +21,7 @@ app.use(express.json({
 }));
 
 
+
 app.use(morgan('dev'));
 
 // User register api
@@ -27,6 +30,8 @@ app.use('/api', require('./routes/user'));
 // User notify api
 app.use('/api/notify', require('./routes/notify'));
 
+// Generate QrCode
+app.use('/api/generate_qr_code', require('./routes/qr_code'));
 
 const PORT = process.env.PORT || 5000;
 
