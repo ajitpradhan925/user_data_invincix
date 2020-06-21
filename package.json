@@ -9,7 +9,7 @@
   "author": "Invincix",
   "license": "MIT",
   "devDependencies": {
-    "colors": "^1.4.0",
+    
 
     "mongoose": "^5.9.2",
     "nodemon": "^2.0.2"
@@ -24,7 +24,8 @@
     "qr-image": "^3.2.0",
     "qrcode": "^1.4.4",
     "dotenv": "^8.2.0",
-    "morgan": "^1.9.1"
+    "morgan": "^1.9.1",
+    "colors": "^1.4.0"
   },
   "engines": {
     "node": "10.x"
