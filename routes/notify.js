@@ -3,6 +3,9 @@ const msg91 = require('msg91')
 const express = require('express');
 const router = express.Router();
 const Notify = require('../models/Notify');
+const User = require('../models/User');
+const async = require('async');
+
 
 
 router.get('/sms',async (req, res, next) => {
@@ -15,28 +18,172 @@ router.get('/sms',async (req, res, next) => {
     var mobileNo = process.env.MOBILE_NO;
     if (flag === process.env.FLAG_1) {
         msg = "'" + UniqueCode + "'" + ' has requested ' + flag + '.';
+
+       
+        
+        User.findOne({ uniqueCode: UniqueCode }, (err, user) => {
+            if(err) console.log(err);
+            console.log(user)
+            if (user){
+                console.log(user)
+               
+                if (saveNotifyToDB(UniqueCode, flag, repliedUnicode, null)) {
+                    // sendSms(msg, mobileNo);
+                    return res.json({
+                        success: true,
+                        msg: "Successfully notified"
+                    });
+                } else {
+                    return res.json({
+                        success: false,
+                        msg: "Some problem occured"
+                    });
+                }
+
+                
+            } else {
+                
+                res.status(404).json({
+                    success: false,
+                    msg: "Unique code is not valid."
+                });
+            }
+               
+        });
+        
+        
     }
     else if (flag === process.env.FLAG_2) {
         msg = "'" + UniqueCode + "'" + ' has replied for ' + repliedUnicode + '.';
+
+
+        async.parallel([
+
+            function(callback) {
+                User.findOne({ uniqueCode: UniqueCode }, (err, user) => {
+                    if(err) return next(err);
+
+                    callback(err, user);
+                });
+            },
+
+            function(callback) {
+                User.findOne({ uniqueCode: repliedUnicode }, (err, user) => {
+                    if(err) return next(err);
+
+                    callback(err, user);
+                });
+            }
+        ], function(err, results) {
+
+            var userUniqueCode = results[0];
+            var userRepliedUniqueCode = results[1];
+
+            console.log(userUniqueCode)
+
+            if(userUniqueCode) {
+
+                if(userRepliedUniqueCode) {
+
+                    if (saveNotifyToDB(UniqueCode, flag, repliedUnicode, null)) {
+                        sendSms(msg, mobileNo);
+                        return res.status(200).json({
+                            success: true,
+                            msg: "Successfully notified"
+                        });
+                    } else {
+                        return res.status(404).json({
+                            success: false,
+                            msg: "Some problem occured"
+                        });
+                    }
+                 
+                } else {
+                    res.status(404).json({
+                        success: false,
+                        msg: "No user having this unique code ."
+                    });
+                }
+            } else {
+                res.status(404).json({
+                    success: false,
+                    msg: "Unique code is not valid."
+                });
+            }
+            
+        }
+
+        );
+
+
+
+
     }
     else if (flag === process.env.FLAG_3) {
         msg = "'" + UniqueCode + "'" + ' has passed ' + repliedUnicode + '.';
+
+        async.parallel([
+
+            function(callback) {
+                User.findOne({ uniqueCode: UniqueCode }, (err, user) => {
+                    if(err) return next(err);
+
+                    callback(err, user);
+                });
+            },
+
+            function(callback) {
+                User.findOne({ uniqueCode: repliedUnicode }, (err, user) => {
+                    if(err) return next(err);
+
+                    callback(err, user);
+                });
+            }
+        ], function(err, results) {
+
+            var userUniqueCode = results[0];
+            var userRepliedUniqueCode = results[1];
+
+            console.log(userUniqueCode)
+
+            if(userUniqueCode) {
+
+                if(userRepliedUniqueCode) {
+
+                    if (saveNotifyToDB(UniqueCode, flag, repliedUnicode, null)) {
+                        sendSms(msg, mobileNo);
+                        return res.status(200).json({
+                            success: true,
+                            msg: "Successfully notified"
+                        });
+                    } else {
+                        return res.status(404).json({
+                            success: false,
+                            msg: "Some problem occured"
+                        });
+                    }
+                 
+                } else {
+                    res.status(404).json({
+                        success: false,
+                        msg: "No user having this unique code ."
+                    });
+                }
+            } else {
+                res.status(404).json({
+                    success: false,
+                    msg: "Unique code is not valid."
+                });
+            }
+            
+        }
+
+        );
     }
 
-    if (saveNotifyToDB(UniqueCode, flag, repliedUnicode, null)) {
-        sendSms(msg, mobileNo);
-        return res.json({
-            success: true,
-            msg: "Successfully notified"
-        });
-    } else {
-        return res.json({
-            success: false,
-            msg: "Some problem occured"
-        });
-    }
 
 })
+
 
 
 
